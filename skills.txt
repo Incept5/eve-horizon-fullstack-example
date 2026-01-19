@@ -1,0 +1,2 @@
+# Local skill sources for this repo.
+./skills/eve-horizon-dev

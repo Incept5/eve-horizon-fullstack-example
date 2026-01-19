@@ -1,0 +1,10 @@
+services:
+  - name: db
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app_test
+    ready: pg_isready
+    provides:
+      DATABASE_URL: postgres://app:app@$HOST:$PORT/app_test
