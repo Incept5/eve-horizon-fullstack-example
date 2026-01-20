@@ -1,0 +1,97 @@
+# Eve Horizon Fullstack Example - Manifest
+# This manifest defines environments, components, and deployment configuration
+
+name: fullstack-example
+domain: fullstack.eve.local
+
+defaults:
+  env: staging
+  execution: persistent
+  harness: mclaude:fast
+  worker_type: standard
+
+# Container images for each component
+# These are built from the Dockerfiles in apps/*/Dockerfile
+components:
+  api:
+    image: ghcr.io/incept5/eve-horizon-fullstack-example-api
+    port: 3000
+    replicas: 1
+    env:
+      NODE_ENV: production
+
+  web:
+    image: ghcr.io/incept5/eve-horizon-fullstack-example-web
+    port: 80
+    replicas: 1
+
+# Database definition
+databases:
+  main:
+    engine: postgres
+    version: "16"
+
+# Environment definitions
+environments:
+  test:
+    type: persistent
+    namespace: ehx-test
+    db: main
+    overrides:
+      replicas: 1
+      resources:
+        memory: 256Mi
+        cpu: 100m
+
+  staging:
+    type: persistent
+    namespace: ehx-staging
+    db: main
+    overrides:
+      replicas: 1
+      resources:
+        memory: 512Mi
+        cpu: 250m
+
+  production:
+    type: persistent
+    namespace: ehx-prod
+    db: main
+    approval: required
+    overrides:
+      replicas: 2
+      resources:
+        memory: 1Gi
+        cpu: 500m
+
+# CI/CD pipeline triggered on main branch push
+pipelines:
+  cd-main:
+    description: "main -> test -> staging -> approval -> prod"
+    steps:
+      - job: deploy-test
+        env: test
+        run: "eve env deploy test --ref ${event.ref.sha}"
+      - job: smoke-test
+        env: test
+        run: "curl -fsS http://api.test.fullstack.eve.local/health"
+      - job: deploy-staging
+        env: staging
+        run: "eve env deploy staging --ref ${event.ref.sha}"
+      - job: e2e-test
+        env: staging
+        run: "curl -fsS http://api.staging.fullstack.eve.local/health && curl -fsS http://api.staging.fullstack.eve.local/todos"
+      - job: review
+        requires_approval: true
+      - job: deploy-prod
+        env: production
+        run: "eve env deploy production --ref ${event.ref.sha}"
+
+# Triggers (optional - for future phases)
+triggers:
+  main-merge:
+    source: github
+    event: push
+    branch: main
+    on_trigger:
+      job: "eve pipeline run cd-main --ref ${event.ref.sha}"
