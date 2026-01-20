@@ -10,11 +10,22 @@ defaults:
   harness: mclaude:fast
   worker_type: standard
 
+registry:
+  host: ghcr.io
+  namespace: incept5
+  auth:
+    username_secret: GHCR_USERNAME
+    token_secret: GITHUB_TOKEN
+
 # Container images for each component
 # These are built from the Dockerfiles in apps/*/Dockerfile
 components:
   api:
     image: ghcr.io/incept5/eve-horizon-fullstack-example-api
+    build:
+      context: ./apps/api
+      dockerfile: ./apps/api/Dockerfile
+      target: production
     port: 3000
     replicas: 1
     env:
@@ -22,6 +33,9 @@ components:
 
   web:
     image: ghcr.io/incept5/eve-horizon-fullstack-example-web
+    build:
+      context: ./apps/web
+      dockerfile: ./apps/web/Dockerfile
     port: 80
     replicas: 1
 
@@ -37,6 +51,7 @@ environments:
     type: persistent
     namespace: ehx-test
     db: main
+    pipeline: deploy-test
     overrides:
       replicas: 1
       resources:
@@ -47,6 +62,7 @@ environments:
     type: persistent
     namespace: ehx-staging
     db: main
+    pipeline: deploy-staging
     overrides:
       replicas: 1
       resources:
@@ -57,6 +73,7 @@ environments:
     type: persistent
     namespace: ehx-prod
     db: main
+    pipeline: deploy-production
     approval: required
     overrides:
       replicas: 2
@@ -64,34 +81,28 @@ environments:
         memory: 1Gi
         cpu: 500m
 
-# CI/CD pipeline triggered on main branch push
-pipelines:
-  cd-main:
-    description: "main -> test -> staging -> approval -> prod"
-    steps:
-      - job: deploy-test
-        env: test
-        run: "eve env deploy test --ref ${event.ref.sha}"
-      - job: smoke-test
-        env: test
-        run: "curl -fsS http://api.test.fullstack.eve.local/health"
-      - job: deploy-staging
-        env: staging
-        run: "eve env deploy staging --ref ${event.ref.sha}"
-      - job: e2e-test
-        env: staging
-        run: "curl -fsS http://api.staging.fullstack.eve.local/health && curl -fsS http://api.staging.fullstack.eve.local/todos"
-      - job: review
-        requires_approval: true
-      - job: deploy-prod
-        env: production
-        run: "eve env deploy production --ref ${event.ref.sha}"
+tests:
+  smoke:
+    command: "./scripts/smoke-test.sh"
 
-# Triggers (optional - for future phases)
-triggers:
-  main-merge:
-    source: github
-    event: push
-    branch: main
-    on_trigger:
-      job: "eve pipeline run cd-main --ref ${event.ref.sha}"
+# Deterministic pipelines (Phase 2)
+pipelines:
+  deploy-test:
+    actions:
+      - type: build
+      - type: release
+      - type: deploy
+      - type: run
+        command_ref: smoke
+
+  deploy-staging:
+    actions:
+      - type: build
+      - type: release
+      - type: deploy
+
+  deploy-production:
+    actions:
+      - type: build
+      - type: release
+      - type: deploy

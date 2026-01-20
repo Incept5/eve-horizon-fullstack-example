@@ -26,8 +26,14 @@ Use a standard PR-style workflow:
 
 - React app: `apps/web`
 - API: `apps/api`
-- Postgres via `.eve/services.yaml`
+- Postgres via `.eve/manifest.yaml` (databases + environments)
 - Local dev via `docker-compose.yml`
+
+## Pipelines
+
+- Deterministic pipelines live in `.eve/manifest.yaml`
+- Use `eve pipeline list` and `eve pipeline show <name>` to inspect definitions
+- Use `eve pipeline run <name> --env <env> --ref <sha>` to execute
 
 ## Typical commands
 
@@ -54,4 +60,3 @@ git add -A
 git commit -m "<message>"
 gh pr create --fill
 ```
-

@@ -24,11 +24,14 @@ eve project ensure \
 # 2. Sync the manifest (pushes .eve/manifest.yaml to Eve)
 eve project sync
 
-# 3. Create a job targeting the default environment (staging)
-eve job create --project <project-id> --description "Add a button to the homepage"
+# 3. Inspect pipelines
+eve pipeline list --project <project-id>
+eve pipeline show deploy-test --project <project-id>
 
-# 4. Deploy to a specific environment
-eve env deploy staging --ref main
+# 4. Run a deterministic pipeline
+eve pipeline run deploy-test --project <project-id> --env test --ref main --wait
+
+# Optional: env deploy shortcut (maps to the env's pipeline)
 eve env deploy test --ref main
 ```
 
@@ -51,8 +54,9 @@ The `.eve/manifest.yaml` defines:
 - **components**: Docker images for api and web
 - **environments**: test, staging, production with resource limits
 - **databases**: Postgres database shared across environments
-- **pipelines**: CD pipeline from test -> staging -> approval -> production
-- **triggers**: GitHub webhook for main branch pushes
+- **registry**: container registry settings for build actions
+- **tests**: smoke test command references
+- **pipelines**: deterministic build/release/deploy actions per env
 
 ## Local Development (Docker Compose)
 
@@ -87,16 +91,13 @@ npm run dev
 
 ## Deployment Flow
 
-When you push to `main`, the CD pipeline runs:
+Deterministic pipelines run per environment:
 
-1. **deploy-test**: Deploy to test environment
-2. **smoke-test**: Verify API health
-3. **deploy-staging**: Deploy to staging
-4. **e2e-test**: Run integration tests
-5. **review**: Wait for manual approval
-6. **deploy-prod**: Deploy to production
+1. **deploy-test**: Build + release + deploy + smoke test
+2. **deploy-staging**: Build + release + deploy
+3. **deploy-production**: Build + release + deploy (approval required)
 
-Jobs targeting the same environment are automatically gated - only one deployment at a time per environment.
+Approvals are enforced at the pipeline boundary for production. Jobs targeting the same environment are gated.
 
 ## API Endpoints
 
