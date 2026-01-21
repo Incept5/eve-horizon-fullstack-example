@@ -2,3 +2,8 @@ node_modules/
 dist/
 .env
 .DS_Store
+
+# Eve secrets file - normally gitignored to protect sensitive data
+# NOTE: In this example repo, .eve/secrets.yaml is checked in for demonstration purposes
+# In a real project, uncomment the line below:
+# .eve/secrets.yaml

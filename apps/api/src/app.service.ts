@@ -32,4 +32,23 @@ export class AppService implements OnModuleInit {
     );
     return result.rows[0];
   }
+
+  async getStatus() {
+    try {
+      const result = await pool.query('SELECT COUNT(*) as count FROM todos');
+      const todosCount = parseInt(result.rows[0]?.count || '0', 10);
+      return {
+        api: 'ok',
+        database: 'ok',
+        todos_count: todosCount,
+      };
+    } catch (error) {
+      return {
+        api: 'ok',
+        database: 'error',
+        database_error: error instanceof Error ? error.message : 'Unknown error',
+        todos_count: 0,
+      };
+    }
+  }
 }

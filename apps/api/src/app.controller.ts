@@ -23,4 +23,9 @@ export class AppController {
     }
     return this.appService.createTodo(title);
   }
+
+  @Get('api/status')
+  getStatus() {
+    return this.appService.getStatus();
+  }
 }

@@ -1,94 +1,63 @@
-# Eve Horizon Fullstack Example - Manifest
-# This manifest defines environments, components, and deployment configuration
+# Eve Manifest
+# Defines components, environments, and deployment pipelines
 
 name: fullstack-example
-domain: fullstack.eve.local
 
-defaults:
-  env: staging
-  execution: persistent
-  harness: mclaude:fast
-  worker_type: standard
+# Optional: Override cluster's default domain for Ingress routing
+# If not set, uses EVE_DEFAULT_DOMAIN from the cluster config
+# domain: custom.example.com
 
-# Container images for each component
-# These are built from the Dockerfiles in apps/*/Dockerfile
+# Container registry for pushing/pulling images
+registry:
+  host: ghcr.io
+  namespace: incept5
+  auth:
+    username_secret: GHCR_USERNAME
+    token_secret: GHCR_TOKEN
+
+# Components to build and deploy
 components:
-  db:
-    image: postgres:16
-    port: 5432
-    replicas: 1
-    env:
-      POSTGRES_USER: eve
-      POSTGRES_PASSWORD: eve
-      POSTGRES_DB: eve
-
   api:
-    image: eve-horizon-fullstack-example-api:local
+    image: ghcr.io/incept5/eve-horizon-fullstack-example-api
     build:
       context: ./apps/api
       dockerfile: ./apps/api/Dockerfile
-      target: production
     port: 3000
-    replicas: 1
     env:
       NODE_ENV: production
-      DATABASE_URL: postgres://eve:eve@test-db:5432/eve
+      DATABASE_URL: postgres://eve:${secret.POSTGRES_PASSWORD}@${ENV_NAME}-db:5432/eve
 
   web:
-    image: eve-horizon-fullstack-example-web:local
+    image: ghcr.io/incept5/eve-horizon-fullstack-example-web
     build:
       context: ./apps/web
       dockerfile: ./apps/web/Dockerfile
     port: 80
-    replicas: 1
 
-# Database definition
-databases:
-  main:
-    engine: postgres
-    version: "16"
+  db:
+    image: postgres:16
+    port: 5432
+    env:
+      POSTGRES_USER: eve
+      POSTGRES_PASSWORD: ${secret.POSTGRES_PASSWORD}
+      POSTGRES_DB: eve
 
-# Environment definitions
+# Deployment environments
 environments:
   test:
-    type: persistent
-    namespace: ehx-test
-    db: main
     pipeline: deploy-test
-    overrides:
-      replicas: 1
-      resources:
-        memory: 256Mi
-        cpu: 100m
-
   staging:
-    type: persistent
-    namespace: ehx-staging
-    db: main
     pipeline: deploy-staging
-    overrides:
-      replicas: 1
-      resources:
-        memory: 512Mi
-        cpu: 250m
-
   production:
-    type: persistent
-    namespace: ehx-prod
-    db: main
     pipeline: deploy-production
     approval: required
-    overrides:
-      replicas: 2
-      resources:
-        memory: 1Gi
-        cpu: 500m
 
+# Test commands (referenced by pipelines)
 tests:
   smoke:
     command: "./scripts/smoke-test.sh"
 
-# Deterministic pipelines (Phase 2)
+# Deterministic pipelines
 pipelines:
   deploy-test:
     actions:
