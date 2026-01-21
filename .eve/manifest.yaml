@@ -13,6 +13,15 @@ defaults:
 # Container images for each component
 # These are built from the Dockerfiles in apps/*/Dockerfile
 components:
+  db:
+    image: postgres:16
+    port: 5432
+    replicas: 1
+    env:
+      POSTGRES_USER: eve
+      POSTGRES_PASSWORD: eve
+      POSTGRES_DB: eve
+
   api:
     image: eve-horizon-fullstack-example-api:local
     build:
@@ -23,6 +32,7 @@ components:
     replicas: 1
     env:
       NODE_ENV: production
+      DATABASE_URL: postgres://eve:eve@test-db:5432/eve
 
   web:
     image: eve-horizon-fullstack-example-web:local
