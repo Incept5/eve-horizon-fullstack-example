@@ -26,6 +26,7 @@ components:
     env:
       NODE_ENV: production
       DATABASE_URL: postgres://eve:${secret.POSTGRES_PASSWORD}@${ENV_NAME}-db:5432/eve
+      EVE_JWKS_URL: ${EVE_JWKS_URL}
 
   web:
     image: ghcr.io/incept5/eve-horizon-fullstack-example-web
@@ -35,6 +36,7 @@ components:
     port: 80
 
   db:
+    type: database
     image: postgres:16
     port: 5432
     env:
@@ -46,11 +48,24 @@ components:
 environments:
   test:
     pipeline: deploy-test
+    db_ref: db
   staging:
     pipeline: deploy-staging
+    db_ref: db
   production:
     pipeline: deploy-production
     approval: required
+    db_ref: db
+
+apis:
+  app:
+    type: openapi
+    base_url: http://api.{project}-{env}.lvh.me
+    spec_url: http://api.{project}-{env}.lvh.me/openapi.json
+    auth: eve
+
+migrations:
+  path: .eve/migrations
 
 # Test commands (referenced by pipelines)
 tests:

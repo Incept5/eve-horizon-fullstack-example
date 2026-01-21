@@ -79,7 +79,7 @@ npm run dev
 **Default endpoints:**
 - Web: http://localhost:5173
 - API: http://localhost:3000/health
-- API Todos: http://localhost:3000/todos
+- API Notes: http://localhost:3000/notes
 
 ## Environment Variables
 
@@ -104,8 +104,9 @@ Approvals are enforced at the pipeline boundary for production. Jobs targeting t
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/health` | Health check |
-| GET | `/todos` | List all todos |
-| POST | `/todos` | Create a todo |
+| GET | `/notes` | List notes |
+| POST | `/notes` | Create a note |
+| GET | `/openapi.json` | OpenAPI spec |
 
 ## Directory Structure
 

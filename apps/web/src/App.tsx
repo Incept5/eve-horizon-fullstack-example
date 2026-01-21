@@ -4,7 +4,7 @@ interface StatusResponse {
   api: string;
   database: string;
   database_error?: string;
-  todos_count: number;
+  notes_count: number;
 }
 
 export default function App() {
@@ -71,8 +71,8 @@ export default function App() {
 
             {status.database === 'ok' && (
               <div className="status-item">
-                <span className="status-label">Todos Count:</span>
-                <span className="status-value">{status.todos_count}</span>
+                <span className="status-label">Notes Count:</span>
+                <span className="status-value">{status.notes_count}</span>
               </div>
             )}
 
