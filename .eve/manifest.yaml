@@ -10,18 +10,11 @@ defaults:
   harness: mclaude:fast
   worker_type: standard
 
-registry:
-  host: ghcr.io
-  namespace: incept5
-  auth:
-    username_secret: GHCR_USERNAME
-    token_secret: GITHUB_TOKEN
-
 # Container images for each component
 # These are built from the Dockerfiles in apps/*/Dockerfile
 components:
   api:
-    image: ghcr.io/incept5/eve-horizon-fullstack-example-api
+    image: eve-horizon-fullstack-example-api:local
     build:
       context: ./apps/api
       dockerfile: ./apps/api/Dockerfile
@@ -32,7 +25,7 @@ components:
       NODE_ENV: production
 
   web:
-    image: ghcr.io/incept5/eve-horizon-fullstack-example-web
+    image: eve-horizon-fullstack-example-web:local
     build:
       context: ./apps/web
       dockerfile: ./apps/web/Dockerfile
