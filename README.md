@@ -54,6 +54,8 @@ The `.eve/manifest.yaml` defines:
 - **components**: Docker images for api and web
 - **environments**: test, staging, production with resource limits
 - **databases**: Postgres database shared across environments
+- **apis**: OpenAPI source for the API (used by `eve api` commands)
+- **migrations**: SQL migrations for the environment database
 - **registry**: container registry settings for build actions
 - **tests**: smoke test command references
 - **pipelines**: deterministic build/release/deploy actions per env

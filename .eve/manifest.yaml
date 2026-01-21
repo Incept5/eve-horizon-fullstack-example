@@ -60,8 +60,8 @@ environments:
 apis:
   app:
     type: openapi
-    base_url: http://api.{project}-{env}.lvh.me
-    spec_url: http://api.{project}-{env}.lvh.me/openapi.json
+    base_url: http://api.examplee-test.lvh.me
+    spec_url: http://api.examplee-test.lvh.me/openapi.json
     auth: eve
 
 migrations:
