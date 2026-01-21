@@ -61,7 +61,7 @@ apis:
   app:
     type: openapi
     base_url: http://api.examplee-test.lvh.me
-    spec_url: http://api.examplee-test.lvh.me/openapi.json
+    spec_url: http://test-api.eve-examplee-test.svc.cluster.local:3000/openapi.json
     auth: eve
 
 migrations:
