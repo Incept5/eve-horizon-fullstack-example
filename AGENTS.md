@@ -60,7 +60,17 @@ This repo works alongside `../eve-horizon` (the main Eve Horizon project).
 | eve-horizon | `../eve-horizon` | Source of truth for Eve CLI, manifest spec, deployment model |
 | eve-skillpacks | `../eve-skillpacks` | Published skills (referenced in `skills.txt`) |
 
-**Agent Permissions**: When working on coordinated changes across repos, agents are **free to commit and push to `main`** in both repos without explicit approval.
+### CRITICAL: Read-Only Access to Sister Repos
+
+**Agents in this repo must NOT modify `../eve-horizon` or `../eve-skillpacks`.**
+
+When you detect drift or issues:
+1. **Read and analyze** the sister repo files
+2. **Surface the issue** to the user with specific details
+3. **Propose changes** for this repo only
+4. **Ask the user** to make any changes needed in eve-horizon
+
+This prevents conflicts when agents are working in both repos simultaneously.
 
 ### Staying in Sync
 
@@ -70,8 +80,8 @@ Use the `/sync-with-eve-horizon` skill to check this repo against the sister pro
 # The skill will:
 # 1. Check manifest.yaml against latest eve-horizon spec
 # 2. Verify CLI commands in docs match current eve CLI
-# 3. Update patterns to match eve-horizon best practices
-# 4. Report any drift or needed updates
+# 3. Report any drift or needed updates
+# 4. Propose changes to THIS repo only (not eve-horizon)
 ```
 
 ---
@@ -159,14 +169,27 @@ cd apps/web && npm install && npm run dev
 
 ### With Eve (k3d Local Stack)
 
+**CRITICAL: Agents must NOT start, stop, or rebuild the k3d stack.**
+
+The k3d cluster may be in use by agents working in `../eve-horizon`. If you cannot connect:
+1. **Stop and ask the user** to start/rebuild the stack
+2. **Do not run** `./bin/eh k8s start`, `./bin/eh k8s deploy`, or `./bin/eh k8s stop`
+
+**Prerequisite**: Ask user to ensure k3d is running:
 ```bash
-# 1. Ensure k3d cluster is running (from ../eve-horizon)
+# USER should run this in ../eve-horizon (not the agent)
 cd ../eve-horizon
 ./bin/eh k8s start
 ./bin/eh k8s deploy
+```
 
-# 2. Register and deploy this project
+**Agent workflow** (once stack is running):
+```bash
+# 1. Set API URL and verify connectivity
 export EVE_API_URL=http://api.eve.lvh.me
+eve system health  # If this fails, ASK USER to restart stack
+
+# 2. Register this project
 eve project ensure --name fullstack-example \
   --repo-url https://github.com/incept5/eve-horizon-fullstack-example \
   --branch main
@@ -398,9 +421,16 @@ kubectl -n eve logs deployment/eve-worker --tail=100
 
 ---
 
-## Critical Reminders
+## Critical Restrictions
 
+**DO NOT** (ask the user instead):
+1. **Modify `../eve-horizon`** - Surface issues, propose changes, but do not edit files there
+2. **Start/stop/rebuild k3d** - Ask the user to run `./bin/eh k8s start|deploy|stop`
+3. **Run commands in `../eve-horizon`** - Only read files for reference
+
+**DO**:
 1. **Push before E2E tests** - Tests clone via git, not local filesystem
 2. **Keep manifest in sync** - This is the canonical example; patterns should match eve-horizon docs
 3. **Test changes locally first** - Use docker-compose before k3d deployment
 4. **Update AGENTS.md** - When adding new patterns or changing workflows
+5. **Ask the user** - When you can't connect to Eve API or k3d cluster

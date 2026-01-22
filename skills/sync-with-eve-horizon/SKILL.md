@@ -1,18 +1,23 @@
 ---
 name: sync-with-eve-horizon
-description: Check and sync this example repo against the latest eve-horizon docs, manifest spec, and code patterns.
+description: Check this example repo against the latest eve-horizon docs and manifest spec. Report drift to user.
 ---
 
 # Sync with Eve Horizon
 
 ## Purpose
 
-Keep this canonical example repository in sync with the main Eve Horizon project. This skill helps you:
+Check this canonical example repository against the main Eve Horizon project and **report any drift to the user**. This skill helps identify when this repo needs updates to match new patterns.
 
-1. Verify manifest.yaml follows the latest spec
-2. Update CLI commands in documentation
-3. Adopt new patterns from eve-horizon
-4. Ensure E2E test compatibility
+## CRITICAL: Read-Only for Sister Repo
+
+**DO NOT modify files in `../eve-horizon`.**
+
+This skill:
+- Reads files from eve-horizon for comparison
+- Identifies drift and issues
+- Reports findings to the user
+- Proposes changes for THIS repo only
 
 ## When to Use
 
@@ -31,45 +36,40 @@ ls ../eve-horizon/AGENTS.md
 ls ../eve-horizon/docs/system/
 ```
 
-If not found, clone it:
-```bash
-cd .. && git clone https://github.com/incept5/eve-horizon.git
-```
+If not found:
+- **STOP and tell the user** the sister repo is not available
+- Ask them to clone it: `cd .. && git clone https://github.com/incept5/eve-horizon.git`
 
-### Step 2: Review Latest Patterns
+### Step 2: Read and Compare Key Files
 
-Read these files from eve-horizon for the current truth:
+Read these files from eve-horizon (DO NOT MODIFY):
 
 1. **AGENTS.md** - Development workflow and conventions
 2. **docs/system/deployment.md** - Manifest structure and deployment model
 3. **docs/system/secrets.md** - Secret interpolation patterns
-4. **packages/shared/src/manifest/** - TypeScript types for manifest validation
 
-```bash
-# Quick diff check on key docs
-diff <(cat ../eve-horizon/AGENTS.md | head -100) <(cat ./AGENTS.md | head -100)
-```
+Compare patterns against this repo's files.
 
 ### Step 3: Validate Manifest Structure
 
-Compare this repo's manifest against eve-horizon's expectations:
+Read and compare manifest expectations:
 
 ```bash
-# Check manifest keys
-cat .eve/manifest.yaml | grep -E "^[a-z]+" | head -20
+# Read eve-horizon manifest docs
+cat ../eve-horizon/docs/system/deployment.md
 
-# Look for new required fields in eve-horizon
-grep -r "manifest" ../eve-horizon/packages/shared/src/ | grep -i required
+# Compare with this repo's manifest
+cat .eve/manifest.yaml
 ```
 
-Key sections to verify:
+Key sections to check:
 - `components` - Image, port, healthcheck, depends_on
 - `environments` - Pipeline ref, db_ref, approval
 - `pipelines` - Action types, triggers
 - `workflows` - Manual/scheduled operations
 - `apis` - OpenAPI source configuration
 
-### Step 4: Update CLI Commands
+### Step 4: Check CLI Command Patterns
 
 Verify CLI commands in documentation match current eve CLI:
 
@@ -78,89 +78,94 @@ Verify CLI commands in documentation match current eve CLI:
 eve --help
 eve project --help
 eve pipeline --help
-eve env --help
-eve job --help
 ```
 
-Update any stale commands in:
-- `README.md` - Human documentation
-- `AGENTS.md` - Agent documentation
-- `skills/*/SKILL.md` - Skill files
+Compare against commands documented in:
+- `README.md`
+- `AGENTS.md`
+- `skills/*/SKILL.md`
 
-### Step 5: Check E2E Test Compatibility
+### Step 5: Report Findings
 
-From eve-horizon, run E2E tests against this repo:
+**DO NOT make changes automatically.** Instead, report to the user:
 
-```bash
-cd ../eve-horizon
+```
+## Sync Report
 
-# Ensure this repo is pushed (tests clone via git)
-cd ../eve-horizon-fullstack-example
-git status  # Should be clean or committed
+### Drift Detected
+1. [File]: [Issue description]
+2. [File]: [Issue description]
 
-# Run E2E tests
-cd ../eve-horizon
-./bin/eh test e2e --env stack
+### Recommended Changes (for this repo)
+1. Update `.eve/manifest.yaml`:
+   - [specific change]
+2. Update `AGENTS.md`:
+   - [specific change]
+
+### Changes Needed in eve-horizon (USER ACTION REQUIRED)
+1. [description] - User should update in ../eve-horizon
+
+### No Issues
+- [List files that are in sync]
 ```
 
-### Step 6: Update and Commit
+### Step 6: Propose Changes for This Repo
 
-If changes were needed:
+If changes are needed in THIS repo:
+1. Show the user the proposed edits
+2. Wait for approval before making changes
+3. Make changes only in this repo's files
 
-```bash
-# Stage and commit changes
-git add -A
-git commit -m "chore: sync with eve-horizon latest patterns"
-git push
+## Key Files to Check
 
-# Then re-run E2E tests to verify
-cd ../eve-horizon
-./bin/eh test e2e --env stack
-```
-
-## Key Files to Keep in Sync
-
-| This Repo | Eve Horizon Source |
-|-----------|-------------------|
-| `.eve/manifest.yaml` | `docs/system/deployment.md`, `packages/shared/src/manifest/` |
-| `AGENTS.md` | `AGENTS.md` (patterns, not content) |
-| `README.md` | CLI help output, `docs/system/` |
+| This Repo | Eve Horizon Reference |
+|-----------|----------------------|
+| `.eve/manifest.yaml` | `docs/system/deployment.md` |
+| `AGENTS.md` | `AGENTS.md` (patterns only) |
+| `README.md` | CLI help output |
 | `scripts/smoke-test.sh` | `tests/e2e/` patterns |
 
 ## Common Drift Issues
 
 ### New Manifest Fields
-
-Eve-horizon adds new manifest features. Check for:
+Eve-horizon may add new manifest features:
 - New component options (healthcheck formats, resource limits)
 - New environment options (approval types, quotas)
 - New pipeline actions or triggers
-- New workflow capabilities
+
+**Action**: Report to user, propose manifest updates for this repo.
 
 ### CLI Changes
+Commands may be renamed or restructured.
 
-Commands may be renamed or restructured:
-- `eve deploy` vs `eve env deploy`
-- `eve run` vs `eve pipeline run`
-- New flags or required parameters
+**Action**: Report stale commands, propose doc updates for this repo.
 
 ### Variable Interpolation
+New interpolation variables may be available.
 
-New interpolation variables may be available:
-- Check `${...}` syntax in eve-horizon docs
-- Verify this repo uses the correct variable names
+**Action**: Report new variables, suggest where to use them.
 
-## Automation Hint
+## Output Template
 
-Consider adding a GitHub Action to:
-1. Clone eve-horizon on a schedule
-2. Run a diff check on key files
-3. Open an issue if drift is detected
+When complete, provide this report:
 
-## Output
+```markdown
+## Eve Horizon Sync Check - [DATE]
 
-When complete, report:
-- Files checked and their sync status
-- Any changes made
-- E2E test results
-- Recommendations for manual review
+### Status: [IN SYNC | DRIFT DETECTED]
+
+### Files Checked
+- [ ] .eve/manifest.yaml
+- [ ] AGENTS.md
+- [ ] README.md
+- [ ] skills/*/SKILL.md
+
+### Issues Found
+[List each issue with file and line if applicable]
+
+### Recommended Actions
+[List specific changes to make in THIS repo]
+
+### User Action Required
+[List anything that needs user intervention, especially for eve-horizon]
+```

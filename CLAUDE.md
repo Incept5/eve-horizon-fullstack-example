@@ -11,6 +11,18 @@ Read AGENTS.md first. It contains:
 - Troubleshooting guides
 ```
 
+## Restrictions (Non-Negotiable)
+
+**DO NOT modify `../eve-horizon` or `../eve-skillpacks`**
+- Read files for reference only
+- Surface issues to the user with specific details
+- Propose changes for THIS repo, not the sister repos
+
+**DO NOT control the k3d stack**
+- Never run `./bin/eh k8s start`, `./bin/eh k8s deploy`, or `./bin/eh k8s stop`
+- If you cannot connect to Eve API, **stop and ask the user** to start/rebuild the stack
+- The stack may be in use by agents working in `../eve-horizon`
+
 ## This Repo's Role
 
 This is the **canonical example** for Eve Horizon projects. It serves as:
@@ -22,8 +34,9 @@ This is the **canonical example** for Eve Horizon projects. It serves as:
 ## Key Rules
 
 1. **Always push before E2E tests** - Tests clone via git, not local filesystem
-2. **Coordinate with `../eve-horizon`** - Changes here may need matching changes there
-3. **Use the skills** - `/sync-with-eve-horizon`, `/eve-cli-workflows`, `/local-k3d-testing`
+2. **Read-only for sister repos** - Only modify files in THIS repository
+3. **Ask user for stack control** - Never start/stop k3d yourself
+4. **Use the skills** - `/sync-with-eve-horizon`, `/eve-cli-workflows`, `/local-k3d-testing`
 
 ## When in Doubt
 
