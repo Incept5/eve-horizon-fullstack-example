@@ -27,6 +27,15 @@ components:
       NODE_ENV: production
       DATABASE_URL: postgres://eve:${secret.POSTGRES_PASSWORD}@${ENV_NAME}-db:5432/eve
       EVE_JWKS_URL: ${EVE_JWKS_URL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      db:
+        condition: healthy
+        migrations: true
 
   web:
     image: ghcr.io/incept5/eve-horizon-fullstack-example-web
@@ -34,6 +43,9 @@ components:
       context: ./apps/web
       dockerfile: ./apps/web/Dockerfile
     port: 80
+    depends_on:
+      api:
+        condition: healthy
 
   db:
     type: database
@@ -43,6 +55,14 @@ components:
       POSTGRES_USER: eve
       POSTGRES_PASSWORD: ${secret.POSTGRES_PASSWORD}
       POSTGRES_DB: eve
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "eve"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    migrations:
+      path: .eve/migrations
+      on_deploy: true
 
 # Deployment environments
 environments:
@@ -63,9 +83,6 @@ apis:
     base_url: http://api.examplee-test.lvh.me
     spec_url: http://test-api.eve-examplee-test.svc.cluster.local:3000/openapi.json
     auth: eve
-
-migrations:
-  path: .eve/migrations
 
 # Test commands (referenced by pipelines)
 tests:
