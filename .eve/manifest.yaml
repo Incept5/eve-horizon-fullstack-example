@@ -68,17 +68,20 @@ components:
       on_deploy: true
 
 # Deployment environments
+# Each environment is isolated with its own component instances.
+# The db_ref references which database component DEFINITION to use (not a shared instance).
+# For example, test environment gets "test-db", staging gets "staging-db", etc.
 environments:
   test:
     pipeline: deploy-test
-    db_ref: db
+    db_ref: db                    # Uses db component definition → creates "test-db" instance
   staging:
     pipeline: deploy-staging
-    db_ref: db
+    db_ref: db                    # Uses db component definition → creates "staging-db" instance
   production:
     pipeline: deploy-production
     approval: required
-    db_ref: db
+    db_ref: db                    # Uses db component definition → creates "production-db" instance
 
 # Test commands (referenced by pipelines)
 tests:
