@@ -38,6 +38,7 @@ components:
         migrations: true
     api_spec:
       type: openapi
+      spec_url: /openapi.json    # Fetched after deploy; defaults to /openapi.json for openapi type
 
   web:
     image: ghcr.io/incept5/eve-horizon-fullstack-example-web
