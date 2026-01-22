@@ -9,8 +9,15 @@ export type EveUser = {
 
 export type EveRequest = Request & { eveUser?: EveUser };
 
-const jwksUrl = process.env.EVE_JWKS_URL;
-const jwks = jwksUrl ? createRemoteJWKSet(new URL(jwksUrl)) : null;
+const jwks = (() => {
+  const jwksUrl = process.env.EVE_JWKS_URL;
+  if (!jwksUrl || jwksUrl.includes('${')) return null;
+  try {
+    return createRemoteJWKSet(new URL(jwksUrl));
+  } catch {
+    return null;
+  }
+})();
 
 function getBearerToken(header?: string): string | null {
   if (!header) return null;
