@@ -36,6 +36,8 @@ components:
       db:
         condition: healthy
         migrations: true
+    api_spec:
+      type: openapi
 
   web:
     image: ghcr.io/incept5/eve-horizon-fullstack-example-web
@@ -76,13 +78,6 @@ environments:
     pipeline: deploy-production
     approval: required
     db_ref: db
-
-apis:
-  app:
-    type: openapi
-    base_url: http://api.examplee-test.lvh.me
-    spec_url: http://test-api.eve-examplee-test.svc.cluster.local:3000/openapi.json
-    auth: eve
 
 # Test commands (referenced by pipelines)
 tests:
