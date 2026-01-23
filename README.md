@@ -35,6 +35,30 @@ eve pipeline run deploy-test --project <project-id> --env test --ref main --wait
 eve env deploy test --ref main
 ```
 
+### Auth (SSH-only)
+
+Eve Horizon uses GitHub SSH key login. For local stacks, bootstrap the first admin:
+
+```bash
+export EVE_BOOTSTRAP_TOKEN=test-bootstrap-token
+eve auth bootstrap --email admin@example.com --public-key ~/.ssh/id_ed25519.pub
+```
+
+Then login with SSH challenge/verify:
+
+```bash
+eve auth login --email admin@example.com --private-key ~/.ssh/id_ed25519
+```
+
+### Webhook Secrets
+
+If you plan to use GitHub/Slack triggers, configure secrets on the Eve stack:
+
+```bash
+export EVE_GITHUB_WEBHOOK_SECRET=your-github-secret
+export EVE_SLACK_SIGNING_SECRET=your-slack-secret
+```
+
 ## Docker Image Build
 
 The project includes Dockerfiles for both components:
@@ -58,7 +82,9 @@ The `.eve/manifest.yaml` defines:
 - **migrations**: SQL migrations for the environment database
 - **registry**: container registry settings for build actions
 - **tests**: smoke test command references
-- **pipelines**: deterministic build/release/deploy actions per env
+- **pipelines**: deterministic build/release/deploy actions per env + CI triggers
+- **triggers**: embedded in pipelines via `trigger.github` or `trigger.system`
+- **workflows**: manual operations and remediation
 
 ## Local Development (Docker Compose)
 

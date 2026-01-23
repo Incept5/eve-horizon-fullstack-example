@@ -113,32 +113,56 @@ pipelines:
   # Event-driven CI/CD pipelines
   ci-main:
     trigger:
-      event: github.push
-      branch: main
+      github:
+        event: push
+        branch: main
     steps:
       - name: build
-        run: npm run build
+        script:
+          run: npm run build
 
       - name: test
-        run: npm test
+        script:
+          run: npm test
         depends_on:
           - build
 
       - name: deploy-staging
-        run: eve deploy --env staging
+        script:
+          run: eve deploy --env staging
         depends_on:
           - test
 
   ci-feature:
     trigger:
-      event: github.push
-      branch: feature/*
+      github:
+        event: push
+        branch: feature/*
     steps:
       - name: lint
-        run: npm run lint
+        script:
+          run: npm run lint
 
       - name: test
-        run: npm test
+        script:
+          run: npm test
+
+  remediation:
+    trigger:
+      system:
+        event: job.failed
+    steps:
+      - name: analyze
+        agent:
+          prompt: "Analyze failure and propose a fix"
+      - name: create-pr
+        depends_on: [analyze]
+        action:
+          type: create-pr
+          head: remediation/example
+          base: main
+          title: "Remediation"
+          dry_run: true
 
 # Workflows - Manual and scheduled operations
 workflows:
@@ -147,11 +171,13 @@ workflows:
     db_access: read_write
     steps:
       - name: deploy
-        run: eve deploy
+        script:
+          run: eve deploy
 
   db-backup:
     manual: true
     db_access: read_only
     steps:
       - name: backup
-        run: ./scripts/backup-db.sh
+        script:
+          run: ./scripts/backup-db.sh

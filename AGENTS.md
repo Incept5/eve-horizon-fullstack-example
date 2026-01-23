@@ -2,7 +2,7 @@
 
 > **Purpose**: Living document for AI agents. This repo is the canonical example for Eve Horizon projects.
 >
-> **Last Updated**: 2026-01-22
+> **Last Updated**: 2026-01-23
 
 For human documentation (setup, endpoints, directory structure), see [README.md](./README.md).
 
@@ -418,6 +418,7 @@ kubectl -n eve logs deployment/eve-worker --tail=100
 - **2026-01-22**: Created AGENTS.md with comprehensive agent guide, added sync and workflow skills
 - **2026-01-22**: Added event-driven pipelines and workflows to manifest
 - **2026-01-22**: Added component healthchecks, dependencies, and migrations
+- **2026-01-23**: Updated manifest to new trigger/step schema, added remediation pipeline example, and documented SSH auth + webhook secrets
 
 ---
 
