@@ -98,11 +98,9 @@ tests:
 # Deterministic pipelines
 pipelines:
   migrate:
-    steps:
-      - name: migrate
-        action:
-          type: job
-          service: migrate
+    actions:
+      - type: job
+        service: migrate
 
   deploy-test:
     actions:
