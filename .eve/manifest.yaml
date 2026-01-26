@@ -15,15 +15,15 @@ registry:
     username_secret: GHCR_USERNAME
     token_secret: GHCR_TOKEN
 
-# Components to build and deploy
-components:
+# Services to build and deploy
+services:
   api:
     image: ghcr.io/incept5/eve-horizon-fullstack-example-api
     build:
       context: ./apps/api
       dockerfile: ./apps/api/Dockerfile
-    port: 3000
-    env:
+    ports: [3000]
+    environment:
       NODE_ENV: production
       DATABASE_URL: postgres://eve:${secret.POSTGRES_PASSWORD}@${ENV_NAME}-db:5432/eve
       EVE_JWKS_URL: ${EVE_JWKS_URL}
@@ -35,36 +35,37 @@ components:
     depends_on:
       db:
         condition: healthy
-    api_spec:
-      type: openapi
-      spec_url: /openapi.json    # Fetched after deploy; defaults to /openapi.json for openapi type
+    x-eve:
+      api_spec:
+        type: openapi
+        spec_url: /openapi.json    # Fetched after deploy; defaults to /openapi.json for openapi type
 
   web:
     image: ghcr.io/incept5/eve-horizon-fullstack-example-web
     build:
       context: ./apps/web
       dockerfile: ./apps/web/Dockerfile
-    port: 80
+    ports: [80]
     depends_on:
       api:
         condition: healthy
 
   migrate:
-    type: job
     image: postgres:16
-    env:
+    environment:
       DATABASE_URL: postgres://eve:${secret.POSTGRES_PASSWORD}@${ENV_NAME}-db:5432/eve
     command: >-
       psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "CREATE TABLE IF NOT EXISTS notes (id serial primary key, body text);" -c "ALTER TABLE notes ENABLE ROW LEVEL SECURITY;"
     depends_on:
       db:
         condition: healthy
+    x-eve:
+      role: job
 
   db:
-    type: database
     image: postgres:16
-    port: 5432
-    env:
+    ports: [5432]
+    environment:
       POSTGRES_USER: eve
       POSTGRES_PASSWORD: ${secret.POSTGRES_PASSWORD}
       POSTGRES_DB: eve
@@ -73,6 +74,8 @@ components:
       interval: 5s
       timeout: 3s
       retries: 5
+    x-eve:
+      role: database
 
 # Deployment environments
 # Each environment is isolated with its own component instances.
