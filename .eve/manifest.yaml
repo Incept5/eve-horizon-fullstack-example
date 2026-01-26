@@ -35,7 +35,6 @@ components:
     depends_on:
       db:
         condition: healthy
-        migrations: true
     api_spec:
       type: openapi
       spec_url: /openapi.json    # Fetched after deploy; defaults to /openapi.json for openapi type
@@ -48,6 +47,17 @@ components:
     port: 80
     depends_on:
       api:
+        condition: healthy
+
+  migrate:
+    type: job
+    image: postgres:16
+    env:
+      DATABASE_URL: postgres://eve:${secret.POSTGRES_PASSWORD}@${ENV_NAME}-db:5432/eve
+    command: >-
+      psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "CREATE TABLE IF NOT EXISTS notes (id serial primary key, body text);" -c "ALTER TABLE notes ENABLE ROW LEVEL SECURITY;"
+    depends_on:
+      db:
         condition: healthy
 
   db:
@@ -63,9 +73,6 @@ components:
       interval: 5s
       timeout: 3s
       retries: 5
-    migrations:
-      path: .eve/migrations
-      on_deploy: true
 
 # Deployment environments
 # Each environment is isolated with its own component instances.
@@ -90,6 +97,13 @@ tests:
 
 # Deterministic pipelines
 pipelines:
+  migrate:
+    steps:
+      - name: migrate
+        action:
+          type: job
+          service: migrate
+
   deploy-test:
     actions:
       - type: build
