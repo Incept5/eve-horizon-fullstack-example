@@ -86,12 +86,13 @@ Use the `/sync-with-eve-horizon` skill to check this repo against the sister pro
 
 ---
 
-## Manifest Structure
+## Manifest Structure (v2 Compose Spec)
 
-The `.eve/manifest.yaml` defines the complete deployment model:
+The `.eve/manifest.yaml` uses the v2 compose specification:
 
 ```yaml
-name: fullstack-example
+schema: eve/compose/v1
+project: fullstack-example
 
 # Container registry for images
 registry:
@@ -101,44 +102,74 @@ registry:
     username_secret: GHCR_USERNAME
     token_secret: GHCR_TOKEN
 
-# Components: api, web, db
-components:
+# Services (Docker Compose style with x-eve extensions)
+services:
   api:
     image: ghcr.io/incept5/eve-horizon-fullstack-example-api
-    port: 3000
+    build:
+      context: ./apps/api
+      dockerfile: ./apps/api/Dockerfile
+    ports: [3000]
     depends_on:
-      db: { condition: healthy, migrations: true }
+      db:
+        condition: service_healthy    # v2 uses service_healthy
+    x-eve:
+      api_spec:
+        type: openapi
+        spec_url: /openapi.json
 
   web:
     image: ghcr.io/incept5/eve-horizon-fullstack-example-web
-    port: 80
+    ports: [80]
     depends_on:
-      api: { condition: healthy }
+      api:
+        condition: service_healthy
 
   db:
-    type: database
     image: postgres:16
-    migrations:
-      path: .eve/migrations
-      on_deploy: true
+    x-eve:
+      role: database
 
-# Environments with pipelines
+# Environments (pipeline assignments)
 environments:
-  test:     { pipeline: deploy-test, db_ref: db }
-  staging:  { pipeline: deploy-staging, db_ref: db }
-  production: { pipeline: deploy-production, approval: required, db_ref: db }
+  test:
+    pipeline: deploy-test
+  staging:
+    pipeline: deploy-staging
+  production:
+    pipeline: deploy-production
+    approval: required
 
-# Pipelines: deterministic action sequences
+# Pipelines with explicit step dependencies
 pipelines:
-  deploy-test:    [build, release, deploy, smoke-test]
-  deploy-staging: [build, release, deploy]
-  deploy-production: [build, release, deploy]
+  deploy-test:
+    steps:
+      - name: build
+        action: { type: build }
+      - name: release
+        depends_on: [build]
+        action: { type: release }
+      - name: deploy
+        depends_on: [release]
+        action: { type: deploy }
+      - name: smoke-test
+        depends_on: [deploy]
+        script:
+          run: ./scripts/smoke-test.sh
+          timeout: 300
 
-# Event-driven CI/CD
-pipelines:
+  # Event-driven CI/CD
   ci-main:
-    trigger: { event: github.push, branch: main }
-    steps: [build, test, deploy-staging]
+    trigger:
+      github:
+        event: push
+        branch: main
+    steps:
+      - name: build
+        script: { run: npm run build }
+      - name: test
+        depends_on: [build]
+        script: { run: npm test }
 ```
 
 ### Variable Interpolation
@@ -419,6 +450,7 @@ kubectl -n eve logs deployment/eve-worker --tail=100
 - **2026-01-22**: Added event-driven pipelines and workflows to manifest
 - **2026-01-22**: Added component healthchecks, dependencies, and migrations
 - **2026-01-23**: Updated manifest to new trigger/step schema, added remediation pipeline example, and documented SSH auth + webhook secrets
+- **2026-01-28**: Migrated manifest to full v2 compose spec (schema declaration, project field, service_healthy conditions, unified steps syntax)
 
 ---
 

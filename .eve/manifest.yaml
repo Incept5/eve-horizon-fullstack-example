@@ -1,7 +1,8 @@
-# Eve Manifest
-# Defines components, environments, and deployment pipelines
+# Eve Manifest - v2 Compose Specification
+# Defines services, environments, and deployment pipelines
 
-name: fullstack-example
+schema: eve/compose/v1
+project: fullstack-example
 
 # Optional: Override cluster's default domain for Ingress routing
 # If not set, uses EVE_DEFAULT_DOMAIN from the cluster config
@@ -34,11 +35,11 @@ services:
       retries: 3
     depends_on:
       db:
-        condition: healthy
+        condition: service_healthy
     x-eve:
       api_spec:
         type: openapi
-        spec_url: /openapi.json    # Fetched after deploy; defaults to /openapi.json for openapi type
+        spec_url: /openapi.json
 
   web:
     image: ghcr.io/incept5/eve-horizon-fullstack-example-web
@@ -48,7 +49,7 @@ services:
     ports: [80]
     depends_on:
       api:
-        condition: healthy
+        condition: service_healthy
 
   migrate:
     image: postgres:16
@@ -58,7 +59,7 @@ services:
       psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "CREATE TABLE IF NOT EXISTS notes (id serial primary key, body text);" -c "ALTER TABLE notes ENABLE ROW LEVEL SECURITY;"
     depends_on:
       db:
-        condition: healthy
+        condition: service_healthy
     x-eve:
       role: job
 
@@ -78,52 +79,61 @@ services:
       role: database
 
 # Deployment environments
-# Each environment is isolated with its own component instances.
-# The db_ref references which database component DEFINITION to use (not a shared instance).
-# For example, test environment gets "test-db", staging gets "staging-db", etc.
 environments:
   test:
     pipeline: deploy-test
-    db_ref: db                    # Uses db component definition → creates "test-db" instance
   staging:
     pipeline: deploy-staging
-    db_ref: db                    # Uses db component definition → creates "staging-db" instance
   production:
     pipeline: deploy-production
     approval: required
-    db_ref: db                    # Uses db component definition → creates "production-db" instance
-
-# Test commands (referenced by pipelines)
-tests:
-  smoke:
-    command: "./scripts/smoke-test.sh"
 
 # Deterministic pipelines
 pipelines:
   migrate:
-    actions:
-      - type: job
-        service: migrate
+    steps:
+      - name: run-migration
+        action:
+          type: job
+          service: migrate
 
   deploy-test:
-    actions:
-      - type: build
-      - type: release
-      - type: deploy
-      - type: run
-        command_ref: smoke
+    steps:
+      - name: build
+        action: { type: build }
+      - name: release
+        depends_on: [build]
+        action: { type: release }
+      - name: deploy
+        depends_on: [release]
+        action: { type: deploy }
+      - name: smoke-test
+        depends_on: [deploy]
+        script:
+          run: ./scripts/smoke-test.sh
+          timeout: 300
 
   deploy-staging:
-    actions:
-      - type: build
-      - type: release
-      - type: deploy
+    steps:
+      - name: build
+        action: { type: build }
+      - name: release
+        depends_on: [build]
+        action: { type: release }
+      - name: deploy
+        depends_on: [release]
+        action: { type: deploy }
 
   deploy-production:
-    actions:
-      - type: build
-      - type: release
-      - type: deploy
+    steps:
+      - name: build
+        action: { type: build }
+      - name: release
+        depends_on: [build]
+        action: { type: release }
+      - name: deploy
+        depends_on: [release]
+        action: { type: deploy }
 
   # Event-driven CI/CD pipelines
   ci-main:
@@ -135,18 +145,14 @@ pipelines:
       - name: build
         script:
           run: npm run build
-
       - name: test
+        depends_on: [build]
         script:
           run: npm test
-        depends_on:
-          - build
-
       - name: deploy-staging
+        depends_on: [test]
         script:
           run: eve deploy --env staging
-        depends_on:
-          - test
 
   ci-feature:
     trigger:
@@ -157,7 +163,6 @@ pipelines:
       - name: lint
         script:
           run: npm run lint
-
       - name: test
         script:
           run: npm test
