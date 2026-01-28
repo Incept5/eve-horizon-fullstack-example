@@ -52,16 +52,17 @@ services:
         condition: service_healthy
 
   migrate:
-    image: postgres:16
+    image: ghcr.io/incept5/eve-migrate:latest
     environment:
       DATABASE_URL: postgres://eve:${secret.POSTGRES_PASSWORD}@${ENV_NAME}-db:5432/eve
-    command: >-
-      psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "CREATE TABLE IF NOT EXISTS notes (id serial primary key, body text);" -c "ALTER TABLE notes ENABLE ROW LEVEL SECURITY;"
     depends_on:
       db:
         condition: service_healthy
     x-eve:
       role: job
+      files:
+        - source: db/migrations
+          target: /migrations
 
   db:
     image: postgres:16
@@ -107,8 +108,13 @@ pipelines:
       - name: deploy
         depends_on: [release]
         action: { type: deploy }
-      - name: smoke-test
+      - name: migrate
         depends_on: [deploy]
+        action:
+          type: job
+          service: migrate
+      - name: smoke-test
+        depends_on: [migrate]
         script:
           run: ./scripts/smoke-test.sh
           timeout: 300
@@ -123,6 +129,11 @@ pipelines:
       - name: deploy
         depends_on: [release]
         action: { type: deploy }
+      - name: migrate
+        depends_on: [deploy]
+        action:
+          type: job
+          service: migrate
 
   deploy-production:
     steps:
@@ -134,6 +145,11 @@ pipelines:
       - name: deploy
         depends_on: [release]
         action: { type: deploy }
+      - name: migrate
+        depends_on: [deploy]
+        action:
+          type: job
+          service: migrate
 
   # Event-driven CI/CD pipelines
   ci-main:
