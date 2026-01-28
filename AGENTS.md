@@ -24,7 +24,8 @@ eve project ensure \
   --branch main
 
 # 3. Deploy to test environment
-eve env deploy <project-id> test --tag local
+# Note: --ref is required (git SHA or branch name)
+eve env deploy test --ref main
 
 # 4. Access the deployed app (no port-forward!)
 open http://web.fullstack-example-test.lvh.me
@@ -230,8 +231,8 @@ docker build -t ghcr.io/incept5/eve-horizon-fullstack-example-web:local apps/web
 k3d image import ghcr.io/incept5/eve-horizon-fullstack-example-api:local -c eve-local
 k3d image import ghcr.io/incept5/eve-horizon-fullstack-example-web:local -c eve-local
 
-# 4. Deploy with local tag
-eve env deploy <project-id> test --tag local
+# 4. Deploy with local tag (--ref required)
+eve env deploy test --ref main
 
 # 5. Access via Ingress
 curl http://api.fullstack-example-test.lvh.me/health
@@ -292,11 +293,22 @@ eve pipeline run deploy-test --project <id> --env test --ref main --wait
 ### Environment Operations
 
 ```bash
-# Deploy to environment
-eve env deploy <project-id> <env> --tag <tag>
+# Deploy to environment (--ref is REQUIRED: git SHA or branch name)
+eve env deploy <env> --ref <git-ref>
 
-# Quick deploy (uses env's pipeline)
+# Examples:
 eve env deploy test --ref main
+eve env deploy staging --ref abc123
+
+# Promotion flow:
+# 1. Build in test
+eve env deploy test --ref abc123
+
+# 2. Get release info
+eve release resolve v1.2.3
+
+# 3. Promote to staging (reuse same ref, pass release_id)
+eve env deploy staging --ref abc123 --inputs '{"release_id":"rel_xxx"}'
 ```
 
 ### Debugging

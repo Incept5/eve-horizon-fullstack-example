@@ -32,6 +32,7 @@ eve pipeline show deploy-test --project <project-id>
 eve pipeline run deploy-test --project <project-id> --env test --ref main --wait
 
 # Optional: env deploy shortcut (maps to the env's pipeline)
+# Note: --ref is required (git SHA or branch name)
 eve env deploy test --ref main
 ```
 
