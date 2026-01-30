@@ -17,7 +17,7 @@ For human documentation (setup, endpoints, directory structure), see [README.md]
 export EVE_API_URL=http://api.eve.lvh.me
 
 # 2. Register this project with Eve
-eve org ensure test-org
+eve org ensure test-org --slug torg
 eve project ensure \
   --name fullstack-example \
   --repo-url https://github.com/incept5/eve-horizon-fullstack-example \
@@ -28,11 +28,11 @@ eve project ensure \
 eve env deploy test --ref main
 
 # 4. Access the deployed app (no port-forward!)
-open http://web.fullstack-example-test.lvh.me
-open http://api.fullstack-example-test.lvh.me/health
+open http://web.torg-fullstack-example-test.lvh.me
+open http://api.torg-fullstack-example-test.lvh.me/health
 ```
 
-**URL Pattern**: `{component}.{project}-{env}.lvh.me`
+**URL Pattern**: `{component}.{orgSlug}-{project}-{env}.lvh.me`
 
 ---
 
@@ -235,7 +235,7 @@ k3d image import ghcr.io/incept5/eve-horizon-fullstack-example-web:local -c eve-
 eve env deploy test --ref main
 
 # 5. Access via Ingress
-curl http://api.fullstack-example-test.lvh.me/health
+curl http://api.torg-fullstack-example-test.lvh.me/health
 ```
 
 ---
@@ -435,10 +435,10 @@ Run `openskills list` to see all installed skills.
 
 ```bash
 # Check if db component is healthy
-kubectl -n eve-fullstack-example-test get pods
+kubectl -n eve-torg-fullstack-example-test get pods
 
 # Check environment variables
-kubectl -n eve-fullstack-example-test exec deploy/api -- env | grep DATABASE
+kubectl -n eve-torg-fullstack-example-test exec deploy/api -- env | grep DATABASE
 ```
 
 ### "Image not found"
