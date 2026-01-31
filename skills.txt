@@ -1,14 +1,3 @@
-# Local skill sources for this repo.
-# These skills teach agents how to work with Eve Horizon projects.
-
-# PR-style development workflow
-./skills/eve-horizon-dev
-
-# Sync this repo with the main eve-horizon project
-./skills/sync-with-eve-horizon
-
-# Learn Eve CLI patterns and commands
-./skills/eve-cli-workflows
-
-# Test deployments with local k3d cluster
-./skills/local-k3d-testing
+# Eve SE Skills
+# Install eve-se skills for building Eve-compatible projects
+https://github.com/incept5/eve-skillpacks
