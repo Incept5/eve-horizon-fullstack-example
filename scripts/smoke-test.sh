@@ -36,25 +36,25 @@ else
 fi
 echo ""
 
-# Test 2: Todos endpoint (verifies app can query database)
-echo "✓ Testing /todos endpoint (verifies database read operations)..."
-todos_response=$(curl -fsSL -w "\nHTTP_CODE:%{http_code}" "$base/todos")
-http_code=$(echo "$todos_response" | grep "HTTP_CODE:" | cut -d: -f2)
-body=$(echo "$todos_response" | grep -v "HTTP_CODE:")
+# Test 2: Notes endpoint (verifies app can query database)
+echo "✓ Testing /notes endpoint (verifies database read operations)..."
+notes_response=$(curl -fsSL -w "\nHTTP_CODE:%{http_code}" "$base/notes")
+http_code=$(echo "$notes_response" | grep "HTTP_CODE:" | cut -d: -f2)
+body=$(echo "$notes_response" | grep -v "HTTP_CODE:")
 
 if [[ "$http_code" != "200" ]]; then
-  echo "❌ Todos endpoint failed with HTTP $http_code"
+  echo "❌ Notes endpoint failed with HTTP $http_code"
   echo "Response: $body"
   exit 3
 fi
 
 # Verify we got valid JSON array response
 if echo "$body" | grep -qE '^\[.*\]$'; then
-  todo_count=$(echo "$body" | grep -o '"id"' | wc -l | tr -d ' ')
-  echo "  ✓ Todos endpoint passed (Retrieved $todo_count todos)"
+  note_count=$(echo "$body" | grep -o '"id"' | wc -l | tr -d ' ')
+  echo "  ✓ Notes endpoint passed (Retrieved $note_count notes)"
   echo "  Response: $body"
 else
-  echo "❌ Todos endpoint returned 200 but response is not a valid array"
+  echo "❌ Notes endpoint returned 200 but response is not a valid array"
   echo "Response: $body"
   exit 4
 fi
