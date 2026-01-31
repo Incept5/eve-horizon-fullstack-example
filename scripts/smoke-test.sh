@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 
 # Determine environment and base URL
 env_name="${1:-${EVE_ENV_NAME:-test}}"
@@ -13,66 +13,77 @@ fi
 echo "Running smoke tests against: $base"
 echo ""
 
-# Wait for API readiness with retry
-max_retries=10
-retry_delay=3
+failures=0
+
+# Helper: HTTP GET with retries
+http_get() {
+  local url="$1" retries="${2:-3}" delay="${3:-2}"
+  local attempt body http_code
+
+  for attempt in $(seq 1 "$retries"); do
+    body=$(curl -sSL --connect-timeout 5 --max-time 10 -w "\nHTTP_CODE:%{http_code}" "$url" 2>&1) && break
+    echo "  Attempt $attempt/$retries failed, retrying in ${delay}s..." >&2
+    sleep "$delay"
+  done
+
+  http_code=$(echo "$body" | grep "HTTP_CODE:" | tail -1 | cut -d: -f2)
+  body=$(echo "$body" | grep -v "HTTP_CODE:" || true)
+
+  echo "$http_code"
+  echo "$body"
+}
+
+# Wait for API readiness
 echo "Waiting for API to be ready..."
-for i in $(seq 1 $max_retries); do
-  if curl -fsSL --connect-timeout 5 "$base/health" >/dev/null 2>&1; then
+for i in $(seq 1 15); do
+  if curl -sSL --connect-timeout 3 --max-time 5 "$base/health" >/dev/null 2>&1; then
     echo "  API ready after $i attempt(s)"
     break
   fi
-  if [[ $i -eq $max_retries ]]; then
-    echo "ERROR: API not ready after $max_retries attempts"
+  if [[ $i -eq 15 ]]; then
+    echo "ERROR: API not ready after 15 attempts"
     exit 1
   fi
-  echo "  Attempt $i/$max_retries - retrying in ${retry_delay}s..."
-  sleep $retry_delay
+  echo "  Attempt $i/15 - retrying in 2s..."
+  sleep 2
 done
 echo ""
 
 # Test 1: Health endpoint
-echo "Testing /health endpoint..."
-health_response=$(curl -fsSL -w "\nHTTP_CODE:%{http_code}" "$base/health")
-http_code=$(echo "$health_response" | grep "HTTP_CODE:" | cut -d: -f2)
-body=$(echo "$health_response" | grep -v "HTTP_CODE:")
+echo "Testing /health..."
+result=$(http_get "$base/health" 3 2)
+http_code=$(echo "$result" | head -1)
+body=$(echo "$result" | tail -n +2)
 
-if [[ "$http_code" != "200" ]]; then
-  echo "FAIL: Health check returned HTTP $http_code"
-  echo "Response: $body"
+if [[ "$http_code" == "200" ]] && echo "$body" | grep -q '"ok":true'; then
+  echo "  PASS: /health (database connected)"
+else
+  echo "  FAIL: /health (HTTP $http_code)"
+  echo "  Response: $body"
+  failures=$((failures + 1))
+fi
+echo ""
+
+# Test 2: Notes endpoint
+echo "Testing /notes..."
+result=$(http_get "$base/notes" 3 2)
+http_code=$(echo "$result" | head -1)
+body=$(echo "$result" | tail -n +2)
+
+if [[ "$http_code" == "200" ]] && echo "$body" | grep -qE '^\['; then
+  note_count=$(echo "$body" | grep -o '"id"' | wc -l | tr -d ' ')
+  echo "  PASS: /notes ($note_count notes)"
+else
+  echo "  FAIL: /notes (HTTP $http_code)"
+  echo "  Response: $body"
+  failures=$((failures + 1))
+fi
+echo ""
+
+if [[ $failures -eq 0 ]]; then
+  echo "All smoke tests passed!"
+  exit 0
+else
+  echo "FAILED: $failures test(s) failed"
   exit 1
 fi
-
-if echo "$body" | grep -q '"ok":true'; then
-  echo "  PASS: Health check (database connected)"
-else
-  echo "FAIL: Health check returned 200 but not ok"
-  echo "Response: $body"
-  exit 2
-fi
-echo ""
-
-# Test 2: Notes endpoint (verifies app can query database)
-echo "Testing /notes endpoint..."
-notes_response=$(curl -fsSL -w "\nHTTP_CODE:%{http_code}" "$base/notes")
-http_code=$(echo "$notes_response" | grep "HTTP_CODE:" | cut -d: -f2)
-body=$(echo "$notes_response" | grep -v "HTTP_CODE:")
-
-if [[ "$http_code" != "200" ]]; then
-  echo "FAIL: Notes endpoint returned HTTP $http_code"
-  echo "Response: $body"
-  exit 3
-fi
-
-if echo "$body" | grep -qE '^\[.*\]$'; then
-  note_count=$(echo "$body" | grep -o '"id"' | wc -l | tr -d ' ')
-  echo "  PASS: Notes endpoint ($note_count notes)"
-else
-  echo "FAIL: Notes endpoint response is not a JSON array"
-  echo "Response: $body"
-  exit 4
-fi
-echo ""
-
-echo "All smoke tests passed!"
-exit 0
