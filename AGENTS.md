@@ -311,6 +311,50 @@ eve release resolve v1.2.3
 eve env deploy staging --ref abc123 --inputs '{"release_id":"rel_xxx"}'
 ```
 
+### Builds
+
+Eve Horizon tracks builds as first-class primitives. Each build creates a **BuildSpec** (what to build), **BuildRun** (execution), and **BuildArtifact** (image digests).
+
+```bash
+# List builds for a project
+eve build list --project <id>
+
+# Show build details
+eve build show <build_id>
+
+# Create a new build spec
+eve build create --project <id> --ref <sha> --manifest-hash <hash> [--services <list>]
+
+# Run a build (creates BuildRun)
+eve build run <build_id>
+
+# View build runs
+eve build runs <build_id>
+
+# View build logs
+eve build logs <build_id> [--run <id>]
+
+# View build artifacts (image digests)
+eve build artifacts <build_id>
+
+# Diagnose build failures
+eve build diagnose <build_id>
+
+# Cancel a running build
+eve build cancel <build_id>
+```
+
+**Build Flow:**
+- Deploy pipelines automatically create BuildSpec + BuildRun records during the `build` step
+- Build backends: Docker Buildx (local), BuildKit (K8s default), Kaniko (fallback)
+- Artifacts track image digests (sha256:...) for immutable deployments
+- Releases reference `build_id` with digest-based image references
+
+**Debugging builds:**
+- Use `eve build diagnose <build_id>` as the primary debugging tool for build failures
+- Check build logs with `eve build logs <build_id>`
+- View artifacts to verify images were pushed correctly
+
 ### Debugging
 
 ```bash

@@ -128,6 +128,40 @@ Deterministic pipelines run per environment:
 
 Approvals are enforced at the pipeline boundary for production. Jobs targeting the same environment are gated.
 
+## Image Builds
+
+Eve Horizon tracks builds as first-class primitives. When you deploy, the pipeline automatically:
+
+1. Creates a **BuildSpec** (immutable input describing what to build)
+2. Executes a **BuildRun** (using BuildKit on K8s or Docker Buildx locally)
+3. Produces **BuildArtifacts** (image digests like `sha256:abc123...`)
+
+Each build is tracked and can be inspected:
+
+```bash
+# List builds for this project
+eve build list --project <project-id>
+
+# Show build details and artifacts
+eve build show <build_id>
+
+# Inspect build artifacts (image digests)
+eve build artifacts <build_id>
+
+# Diagnose build failures
+eve build diagnose <build_id>
+```
+
+**Build Backends:**
+- **BuildKit** (default on Kubernetes) - Fast, parallel multi-stage builds
+- **Docker Buildx** (local development) - Uses local Docker daemon
+- **Kaniko** (fallback) - Rootless builds in restricted environments
+
+**Image Registry:**
+- Images are pushed to `ghcr.io/incept5/eve-horizon-fullstack-example-{service}`
+- Releases reference images by digest (immutable) rather than tag
+- Digests ensure exactly the same image is deployed across environments
+
 ## API Endpoints
 
 | Method | Path | Description |
