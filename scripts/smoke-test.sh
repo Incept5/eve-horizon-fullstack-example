@@ -4,8 +4,9 @@ set -euo pipefail
 # Determine environment and base URL
 env_name="${1:-${EVE_ENV_NAME:-test}}"
 if [[ -n "${EVE_ENV_NAMESPACE:-}" ]]; then
-  base="http://test-api.${EVE_ENV_NAMESPACE}.svc.cluster.local:3000"
+  base="http://${env_name}-api.${EVE_ENV_NAMESPACE}.svc.cluster.local:3000"
 else
+  echo "Warning: EVE_ENV_NAMESPACE not set, using external hostname" >&2
   base="http://api.${env_name}.fullstack.eve.local"
 fi
 
