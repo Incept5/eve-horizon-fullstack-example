@@ -8,6 +8,17 @@ For human documentation (setup, endpoints, directory structure), see [README.md]
 
 ---
 
+## CRITICAL: Load Eve Docs + CLI First
+
+Before any work, load the Eve docs skill and review CLI guidance:
+
+```bash
+openskills read eve-read-eve-docs
+cat .agent/skills/eve-read-eve-docs/references/cli.md
+```
+
+This ensures CLI commands, `--repo-dir`, and deploy flows are current.
+
 ## Quick Start
 
 ```bash
