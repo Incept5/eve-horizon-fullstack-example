@@ -24,8 +24,8 @@ eve project ensure \
   --branch main
 
 # 3. Deploy to test environment
-# Note: --ref is required (git SHA or branch name)
-eve env deploy test --ref main
+# Note: --ref is required (40-character SHA or a ref resolved against --repo-dir)
+eve env deploy test --ref main --repo-dir .
 
 # 4. Access the deployed app (no port-forward!)
 open http://web.torg-fullstack-example-test.lvh.me
@@ -232,7 +232,7 @@ k3d image import ghcr.io/incept5/eve-horizon-fullstack-example-api:local -c eve-
 k3d image import ghcr.io/incept5/eve-horizon-fullstack-example-web:local -c eve-local
 
 # 4. Deploy with local tag (--ref required)
-eve env deploy test --ref main
+eve env deploy test --ref main --repo-dir .
 
 # 5. Access via Ingress
 curl http://api.torg-fullstack-example-test.lvh.me/health
@@ -249,7 +249,7 @@ curl http://api.torg-fullstack-example-test.lvh.me/health
 ./scripts/smoke-test.sh
 
 # Or via Eve pipeline (includes build + deploy + test)
-eve pipeline run deploy-test --project <id> --env test --wait
+eve pipeline run deploy-test --project <id> --env test --ref main --repo-dir . --wait
 ```
 
 ### As E2E Test Fixture
@@ -287,28 +287,28 @@ eve pipeline list --project <id>
 eve pipeline show deploy-test --project <id>
 
 # Run pipeline
-eve pipeline run deploy-test --project <id> --env test --ref main --wait
+eve pipeline run deploy-test --project <id> --env test --ref main --repo-dir . --wait
 ```
 
 ### Environment Operations
 
 ```bash
-# Deploy to environment (--ref is REQUIRED: git SHA or branch name)
-eve env deploy <env> --ref <git-ref>
+# Deploy to environment (--ref is REQUIRED: 40-character SHA or ref resolved via --repo-dir)
+eve env deploy <env> --ref <git-ref> --repo-dir ./my-app
 
 # Examples:
-eve env deploy test --ref main
-eve env deploy staging --ref abc123
+eve env deploy test --ref main --repo-dir .
+eve env deploy staging --ref 0123456789abcdef0123456789abcdef01234567
 
 # Promotion flow:
 # 1. Build in test
-eve env deploy test --ref abc123
+eve env deploy test --ref 0123456789abcdef0123456789abcdef01234567
 
 # 2. Get release info
 eve release resolve v1.2.3
 
 # 3. Promote to staging (reuse same ref, pass release_id)
-eve env deploy staging --ref abc123 --inputs '{"release_id":"rel_xxx"}'
+eve env deploy staging --ref 0123456789abcdef0123456789abcdef01234567 --inputs '{"release_id":"rel_xxx"}'
 ```
 
 ### Builds

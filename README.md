@@ -29,11 +29,11 @@ eve pipeline list --project <project-id>
 eve pipeline show deploy-test --project <project-id>
 
 # 4. Run a deterministic pipeline
-eve pipeline run deploy-test --project <project-id> --env test --ref main --wait
+eve pipeline run deploy-test --project <project-id> --env test --ref main --repo-dir . --wait
 
 # Optional: env deploy shortcut (maps to the env's pipeline)
-# Note: --ref is required (git SHA or branch name)
-eve env deploy test --ref main
+# Note: --ref is required (40-character SHA or a ref resolved against --repo-dir)
+eve env deploy test --ref main --repo-dir .
 ```
 
 ### Auth (SSH-only)
