@@ -3,6 +3,8 @@ agents:
   mission_control:
     skill: eve-mission-control
     workflow: assistant
+    harness_profile: primary-orchestrator
   reviewer:
     skill: eve-reviewer
     workflow: review
+    harness_profile: primary-reviewer

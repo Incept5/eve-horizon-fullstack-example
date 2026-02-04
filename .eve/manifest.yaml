@@ -9,6 +9,15 @@ x-eve:
     version: 1
     config_path: ./agents/agents.yaml
     teams_path: ./agents/teams.yaml
+    profiles:
+      primary-orchestrator:
+        - harness: zai
+          model: glm-4.7
+          reasoning_effort: high
+      primary-reviewer:
+        - harness: zai
+          model: glm-4.7
+          reasoning_effort: medium
   chat:
     config_path: ./agents/chat.yaml
 
