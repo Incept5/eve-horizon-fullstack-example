@@ -1,0 +1,7 @@
+version: 1
+teams:
+  mission_control:
+    lead: mission_control
+    members: [reviewer]
+    dispatch:
+      mode: fanout

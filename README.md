@@ -24,6 +24,9 @@ eve project ensure \
 # 2. Sync the manifest (pushes .eve/manifest.yaml to Eve)
 eve project sync
 
+# 2b. Sync agent + chat config
+eve agents sync --project <project-id> --ref main --repo-dir .
+
 # 3. Inspect pipelines
 eve pipeline list --project <project-id>
 eve pipeline show deploy-test --project <project-id>
@@ -34,6 +37,21 @@ eve pipeline run deploy-test --project <project-id> --env test --ref main --repo
 # Optional: env deploy shortcut (maps to the env's pipeline)
 # Note: --ref is required (40-character SHA or a ref resolved against --repo-dir)
 eve env deploy test --ref main --repo-dir .
+```
+
+### Agents & Chat
+
+This repo includes agent runtime configuration under `agents/`:
+
+- `agents/agents.yaml` - Agent definitions
+- `agents/teams.yaml` - Team dispatch settings
+- `agents/chat.yaml` - Chat routing rules
+
+Test routing without Slack:
+
+```bash
+eve chat simulate slack --project <project-id> \
+  --team-id T123 --channel C456 --user U789 --text "hello"
 ```
 
 ### Auth (SSH-only)
@@ -179,6 +197,10 @@ eve build diagnose <build_id>
 │   ├── manifest.yaml    # Eve Horizon configuration
 │   └── hooks/
 │       └── on-clone.sh  # Post-clone setup script
+├── agents/
+│   ├── agents.yaml       # Agent definitions
+│   ├── teams.yaml        # Team composition + dispatch
+│   └── chat.yaml         # Chat routing rules
 ├── apps/
 │   ├── api/             # NestJS backend
 │   │   ├── Dockerfile

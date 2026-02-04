@@ -4,6 +4,14 @@
 schema: eve/compose/v1
 project: fullstack-example
 
+x-eve:
+  agents:
+    version: 1
+    config_path: ./agents/agents.yaml
+    teams_path: ./agents/teams.yaml
+  chat:
+    config_path: ./agents/chat.yaml
+
 # Optional: Override cluster's default domain for Ingress routing
 # If not set, uses EVE_DEFAULT_DOMAIN from the cluster config
 # domain: custom.example.com

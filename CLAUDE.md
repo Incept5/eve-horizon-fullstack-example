@@ -17,3 +17,9 @@ Skills are installed via `eve-skillpacks`. Key skills for this repo:
 - `eve-deploy-debugging` - Deploy and debug
 - `eve-repo-upkeep` - Keep aligned with platform conventions
 - `eve-troubleshooting` - CLI-first diagnostics
+
+Agent runtime config lives in `agents/`. After editing, sync it:
+
+```bash
+eve agents sync --project proj_xxx --ref main --repo-dir .
+```

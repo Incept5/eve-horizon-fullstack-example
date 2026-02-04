@@ -1,0 +1,8 @@
+version: 1
+agents:
+  mission_control:
+    skill: eve-mission-control
+    workflow: assistant
+  reviewer:
+    skill: eve-reviewer
+    workflow: review

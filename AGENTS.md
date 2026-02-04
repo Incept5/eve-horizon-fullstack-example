@@ -2,7 +2,7 @@
 
 > **Purpose**: Living document for AI agents. This repo is the canonical example for Eve Horizon projects.
 >
-> **Last Updated**: 2026-01-23
+> **Last Updated**: 2026-02-04
 
 For human documentation (setup, endpoints, directory structure), see [README.md](./README.md).
 
@@ -41,6 +41,27 @@ eve env deploy test --ref main --repo-dir .
 # 4. Access the deployed app (no port-forward!)
 open http://web.torg-fullstack-example-test.lvh.me
 open http://api.torg-fullstack-example-test.lvh.me/health
+```
+
+## Agent Runtime Configuration
+
+This repo ships agent runtime config under `agents/` and declares paths in `.eve/manifest.yaml`:
+
+- `agents/agents.yaml` - Agent definitions
+- `agents/teams.yaml` - Team composition + dispatch
+- `agents/chat.yaml` - Chat routing rules
+
+Sync configuration after changes:
+
+```bash
+eve agents sync --project proj_xxx --ref main --repo-dir .
+```
+
+Simulate chat routing without Slack:
+
+```bash
+eve chat simulate slack --project proj_xxx \
+  --team-id T123 --channel C456 --user U789 --text "hello"
 ```
 
 **URL Pattern**: `{component}.{orgSlug}-{project}-{env}.lvh.me`

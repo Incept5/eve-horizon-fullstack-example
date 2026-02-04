@@ -1,0 +1,6 @@
+version: 1
+default_route: route_default
+routes:
+  - id: route_default
+    match: ".*"
+    target: team:mission_control

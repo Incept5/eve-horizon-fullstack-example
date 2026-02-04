@@ -1,3 +1,4 @@
 # Eve SE Skills
 # Install eve-se skills for building Eve-compatible projects
+# Agent skills are referenced in agents/agents.yaml and synced via `eve agents sync`.
 https://github.com/incept5/eve-skillpacks
