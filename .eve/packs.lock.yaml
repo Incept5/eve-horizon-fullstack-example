@@ -1,0 +1,15 @@
+resolved_at: 2026-02-08T17:47:18.494Z
+project_slug: fullstack-example
+packs:
+  - id: notes-ops
+    source: ./packs/notes-ops
+    ref: d1cfae5b1df7efeb5b73cdb12140a76e28ab2bbe
+    pack_version: 1
+effective:
+  agents_count: 4
+  teams_count: 2
+  routes_count: 2
+  profiles_count: 0
+  agents_hash: "25235129"
+  teams_hash: 55b40034
+  chat_hash: 3c688725

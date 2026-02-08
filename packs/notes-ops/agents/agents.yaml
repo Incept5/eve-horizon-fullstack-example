@@ -1,0 +1,15 @@
+version: 1
+agents:
+  notes_assistant:
+    slug: notes-assistant
+    description: "Answers questions about notes, helps users create and manage them via the REST API"
+    skill: notes-api-reference
+    workflow: assistant
+    harness_profile: primary-orchestrator
+
+  db_ops:
+    slug: db-ops
+    description: "Database operations — migrations, health checks, and schema inspection"
+    skill: notes-api-reference
+    workflow: assistant
+    harness_profile: primary-orchestrator

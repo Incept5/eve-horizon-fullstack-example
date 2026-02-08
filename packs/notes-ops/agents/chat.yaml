@@ -1,0 +1,5 @@
+version: 1
+routes:
+  - id: route_notes
+    match: "notes|database|migration|schema"
+    target: team:notes_team

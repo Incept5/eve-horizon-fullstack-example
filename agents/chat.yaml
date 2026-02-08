@@ -1,6 +1,8 @@
 version: 1
 default_route: route_default
 routes:
+  # Pack's notes route is inherited automatically via merge.
+  # The default route catches everything else.
   - id: route_default
     match: ".*"
     target: team:mission_control

@@ -1,0 +1,6 @@
+version: 1
+id: notes-ops
+imports:
+  agents: agents/agents.yaml
+  teams: agents/teams.yaml
+  chat: agents/chat.yaml

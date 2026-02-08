@@ -1,0 +1,7 @@
+version: 1
+teams:
+  notes_team:
+    lead: notes_assistant
+    members: [db_ops]
+    dispatch:
+      mode: relay

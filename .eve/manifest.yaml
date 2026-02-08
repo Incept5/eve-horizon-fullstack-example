@@ -20,6 +20,8 @@ x-eve:
           reasoning_effort: medium
   chat:
     config_path: ./agents/chat.yaml
+  packs:
+    - source: ./packs/notes-ops
 
 # Optional: Override cluster's default domain for Ingress routing
 # If not set, uses EVE_DEFAULT_DOMAIN from the cluster config

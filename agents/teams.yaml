@@ -2,6 +2,6 @@ version: 1
 teams:
   mission_control:
     lead: mission_control
-    members: [reviewer]
+    members: [reviewer, notes_assistant]
     dispatch:
       mode: fanout

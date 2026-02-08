@@ -211,7 +211,7 @@ Available in env vars and some fields:
 - `${PROJECT_ID}` - Project ID
 - `${ORG_ID}` - Organization ID
 - `${COMPONENT_NAME}` - Component name
-- `${secret.KEY_NAME}` - From `.eve/secrets.yaml`
+- `${secret.KEY_NAME}` - From `.eve/dev-secrets.yaml`
 
 ---
 
