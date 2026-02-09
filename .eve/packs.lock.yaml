@@ -1,9 +1,9 @@
-resolved_at: 2026-02-08T17:47:18.494Z
+resolved_at: 2026-02-08T22:19:08.024Z
 project_slug: fullstack-example
 packs:
   - id: notes-ops
     source: ./packs/notes-ops
-    ref: d1cfae5b1df7efeb5b73cdb12140a76e28ab2bbe
+    ref: 3e75cd95300eee96b745ce71aef6d4720a9bb8d2
     pack_version: 1
 effective:
   agents_count: 4

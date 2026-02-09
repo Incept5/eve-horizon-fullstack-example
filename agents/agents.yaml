@@ -19,4 +19,5 @@ agents:
   # Overlay: override the pack's notes_assistant to use the reviewer profile
   # (demonstrates that project config merges on top of pack defaults)
   notes_assistant:
+    skill: notes-api-reference
     harness_profile: primary-reviewer
