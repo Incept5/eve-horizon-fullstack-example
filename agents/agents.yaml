@@ -8,6 +8,8 @@ agents:
     skill: notes-api-reference
     workflow: assistant
     harness_profile: primary-orchestrator
+    gateway:
+      policy: routable           # primary chatbot — accessible via Slack
 
   reviewer:
     slug: reviewer
@@ -15,6 +17,7 @@ agents:
     skill: notes-api-reference
     workflow: review
     harness_profile: primary-reviewer
+    # gateway: defaults to none — triggered by team dispatch, not direct chat
 
   # Overlay: override the pack's notes_assistant to use the reviewer profile
   # (demonstrates that project config merges on top of pack defaults)
