@@ -46,16 +46,13 @@ services:
     ports: [3000]
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://eve:${secret.POSTGRES_PASSWORD}@${ENV_NAME}-db:5432/eve
+      DATABASE_URL: ${managed.db.url}
       EVE_JWKS_URL: ${EVE_JWKS_URL}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 10s
       timeout: 5s
       retries: 3
-    depends_on:
-      db:
-        condition: service_healthy
     x-eve:
       api_spec:
         type: openapi
@@ -74,10 +71,7 @@ services:
   migrate:
     image: ghcr.io/incept5/eve-migrate:latest
     environment:
-      DATABASE_URL: postgres://eve:${secret.POSTGRES_PASSWORD}@${ENV_NAME}-db:5432/eve
-    depends_on:
-      db:
-        condition: service_healthy
+      DATABASE_URL: ${managed.db.url}
     x-eve:
       role: job
       files:
@@ -85,19 +79,12 @@ services:
           target: /migrations
 
   db:
-    image: postgres:16
-    ports: [5432]
-    environment:
-      POSTGRES_USER: eve
-      POSTGRES_PASSWORD: ${secret.POSTGRES_PASSWORD}
-      POSTGRES_DB: eve
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "eve"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
     x-eve:
-      role: database
+      role: managed_db
+      managed:
+        class: db.p1
+        engine: postgres
+        engine_version: "16"
 
 # Deployment environments
 environments:
