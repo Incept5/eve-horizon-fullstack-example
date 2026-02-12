@@ -54,6 +54,23 @@ eve chat simulate slack --project <project-id> \
   --team-id T123 --channel C456 --user U789 --text "hello"
 ```
 
+### Resource Refs (Org Docs + Attachments)
+
+Resource refs let jobs mount org documents or job attachments into the agent workspace under `.eve/resources/`.
+
+```bash
+# Create an org doc
+eve docs write --org <org-id> --path /pm/features/FEAT-123.md --stdin <<'EOF'
+# FEAT-123
+Sample feature brief for resource refs.
+EOF
+
+# Create a job that mounts the doc
+eve job create --project <project-id> \
+  --description "Review FEAT-123" \
+  --resource-refs='[{"uri":"org_docs:/pm/features/FEAT-123.md","required":true,"mount_path":"pm/feat-123.md","label":"Feature Brief"}]'
+```
+
 ### Auth (SSH-only)
 
 Eve Horizon uses GitHub SSH key login. For local stacks, bootstrap the first admin:
