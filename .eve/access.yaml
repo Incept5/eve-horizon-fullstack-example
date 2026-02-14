@@ -1,0 +1,42 @@
+version: 2
+access:
+  groups:
+    pm-team:
+      name: Product Management
+      description: Product planning and roadmap access
+    eng-team:
+      name: Engineering
+      description: Engineering implementation access
+
+  roles:
+    pm_editor:
+      scope: org
+      permissions:
+        - orgdocs:read
+        - orgdocs:write
+        - orgfs:read
+        - orgfs:write
+        - envdb:read
+    eng_editor:
+      scope: org
+      permissions:
+        - orgdocs:read
+        - orgdocs:write
+        - orgfs:read
+        - orgfs:write
+        - envdb:read
+
+  bindings:
+    - subject: { type: group, id: pm-team }
+      roles: [pm_editor]
+      scope:
+        orgdocs: { allow_prefixes: ["/groups/pm/**"] }
+        orgfs: { allow_prefixes: ["/groups/pm/**"] }
+        envdb: { schemas: ["pm"] }
+
+    - subject: { type: group, id: eng-team }
+      roles: [eng_editor]
+      scope:
+        orgdocs: { allow_prefixes: ["/groups/eng/**"] }
+        orgfs: { allow_prefixes: ["/groups/eng/**"] }
+        envdb: { schemas: ["eng"] }

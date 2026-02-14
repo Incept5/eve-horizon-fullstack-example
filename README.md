@@ -71,6 +71,22 @@ eve job create --project <project-id> \
   --resource-refs='[{"uri":"org_docs:/pm/features/FEAT-123.md","required":true,"mount_path":"pm/feat-123.md","label":"Feature Brief"}]'
 ```
 
+### Access Policy As Code (`.eve/access.yaml`)
+
+This repo includes a scoped access policy at `.eve/access.yaml` (version 2)
+using groups + scoped bindings for `orgdocs`, `orgfs`, and `envdb`.
+
+```bash
+# Validate policy structure and semantics
+eve access validate --file .eve/access.yaml
+
+# Preview access changes for an org
+eve access plan --file .eve/access.yaml --org <org-id>
+
+# Apply policy to an org
+eve access sync --file .eve/access.yaml --org <org-id> --yes
+```
+
 ### Auth (SSH-only)
 
 Eve Horizon uses GitHub SSH key login. For local stacks, bootstrap the first admin:
