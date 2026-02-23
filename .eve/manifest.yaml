@@ -28,13 +28,8 @@ x-eve:
 # If not set, uses EVE_DEFAULT_DOMAIN from the cluster config
 # domain: custom.example.com
 
-# Container registry for pushing/pulling images
-registry:
-  host: ghcr.io
-  namespace: incept5
-  auth:
-    username_secret: GHCR_USERNAME
-    token_secret: GHCR_TOKEN
+# Use Eve-native registry (auth handled internally via EVE_INTERNAL_API_KEY + JWT)
+registry: "eve"
 
 # Services to build and deploy
 services:
