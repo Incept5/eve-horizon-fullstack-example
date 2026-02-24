@@ -64,7 +64,7 @@ services:
         condition: service_healthy
 
   migrate:
-    image: ghcr.io/incept5/eve-migrate:latest
+    image: public.ecr.aws/w7c4v0w3/eve-horizon/migrate:latest
     environment:
       DATABASE_URL: ${managed.db.url}
     x-eve:

@@ -1,9 +1,9 @@
-resolved_at: 2026-02-13T18:47:11.112Z
+resolved_at: 2026-02-18T17:16:52.568Z
 project_slug: fstack
 packs:
   - id: notes-ops
     source: ./packs/notes-ops
-    ref: ca93c77e156a96058d615d1652fa601197915e43
+    ref: e4c6d9af4f8f335af9f5f7dafd6b3800a87cc34d
     pack_version: 1
   - id: software-factory
     source: ../eve-software-factory
