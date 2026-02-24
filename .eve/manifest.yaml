@@ -34,7 +34,6 @@ registry: "eve"
 # Services to build and deploy
 services:
   api:
-    image: ghcr.io/incept5/eve-horizon-fullstack-example-api
     build:
       context: ./apps/api
       dockerfile: ./apps/api/Dockerfile
@@ -54,7 +53,6 @@ services:
         spec_url: /openapi.json
 
   web:
-    image: ghcr.io/incept5/eve-horizon-fullstack-example-web
     build:
       context: ./apps/web
       dockerfile: ./apps/web/Dockerfile
