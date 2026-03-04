@@ -2,6 +2,6 @@
 set -euo pipefail
 
 echo "[on-clone] Installing skills from AgentPacks..."
-eve-worker skills install
+eve skills install
 
 echo "[on-clone] Complete"
