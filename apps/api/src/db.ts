@@ -5,4 +5,7 @@ if (!databaseUrl) {
   throw new Error('DATABASE_URL is required');
 }
 
-export const pool = new Pool({ connectionString: databaseUrl });
+export const pool = new Pool({
+  connectionString: databaseUrl,
+  ssl: databaseUrl.includes('sslmode=') ? { rejectUnauthorized: false } : undefined,
+});
