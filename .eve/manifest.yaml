@@ -51,6 +51,12 @@ services:
       api_spec:
         type: openapi
         spec_url: /openapi.json
+      object_store:
+        buckets:
+          - name: uploads
+            visibility: private
+          - name: assets
+            visibility: public
 
   web:
     build:
