@@ -1,9 +1,9 @@
-resolved_at: 2026-02-18T17:16:52.568Z
+resolved_at: 2026-05-05T17:54:37.653Z
 project_slug: fstack
 packs:
   - id: notes-ops
     source: ./packs/notes-ops
-    ref: e4c6d9af4f8f335af9f5f7dafd6b3800a87cc34d
+    ref: 8b352e62d3c417ff66999d9e49cf30f28b79e8a2
     pack_version: 1
   - id: software-factory
     source: ../eve-software-factory
@@ -13,7 +13,7 @@ effective:
   agents_count: 8
   teams_count: 3
   routes_count: 3
-  profiles_count: 0
+  profiles_count: 5
   agents_hash: 6ac18a18
   teams_hash: 6660768d
   chat_hash: 3e490cc0
