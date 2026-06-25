@@ -18,7 +18,7 @@ Canonical example repo for Eve Horizon, demonstrating persistent environments an
 # 1. Register the project with Eve Horizon
 eve project ensure \
   --name fullstack-example \
-  --repo-url https://github.com/incept5/eve-horizon-fullstack-example \
+  --repo-url https://github.com/eve-horizon/eve-horizon-fullstack-example \
   --branch main
 
 # 2. Sync the manifest (pushes .eve/manifest.yaml to Eve)
@@ -117,10 +117,10 @@ The project includes Dockerfiles for both components:
 
 ```bash
 # Build API image
-docker build -t ghcr.io/incept5/eve-horizon-fullstack-example-api:latest apps/api
+docker build -t ghcr.io/eve-horizon/eve-horizon-fullstack-example-api:latest apps/api
 
 # Build Web image
-docker build -t ghcr.io/incept5/eve-horizon-fullstack-example-web:latest apps/web
+docker build -t ghcr.io/eve-horizon/eve-horizon-fullstack-example-web:latest apps/web
 ```
 
 ## Manifest Structure
@@ -209,7 +209,7 @@ eve build diagnose <build_id>
 - **Kaniko** (fallback) - Rootless builds in restricted environments
 
 **Image Registry:**
-- Images are pushed to `ghcr.io/incept5/eve-horizon-fullstack-example-{service}`
+- Images are pushed to `ghcr.io/eve-horizon/eve-horizon-fullstack-example-{service}`
 - Releases reference images by digest (immutable) rather than tag
 - Digests ensure exactly the same image is deployed across environments
 

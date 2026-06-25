@@ -31,7 +31,7 @@ export EVE_API_URL=http://api.eve.lvh.me
 eve org ensure test-org --slug torg
 eve project ensure \
   --name fullstack-example \
-  --repo-url https://github.com/incept5/eve-horizon-fullstack-example \
+  --repo-url https://github.com/eve-horizon/eve-horizon-fullstack-example \
   --branch main
 
 # 3. Deploy to test environment
@@ -129,7 +129,7 @@ project: fullstack-example
 # Container registry for images
 registry:
   host: ghcr.io
-  namespace: incept5
+  namespace: eve-horizon
   auth:
     username_secret: GHCR_USERNAME
     token_secret: GHCR_TOKEN
@@ -137,7 +137,7 @@ registry:
 # Services (Docker Compose style with x-eve extensions)
 services:
   api:
-    image: ghcr.io/incept5/eve-horizon-fullstack-example-api
+    image: ghcr.io/eve-horizon/eve-horizon-fullstack-example-api
     build:
       context: ./apps/api
       dockerfile: ./apps/api/Dockerfile
@@ -151,7 +151,7 @@ services:
         spec_url: /openapi.json
 
   web:
-    image: ghcr.io/incept5/eve-horizon-fullstack-example-web
+    image: ghcr.io/eve-horizon/eve-horizon-fullstack-example-web
     ports: [80]
     depends_on:
       api:
@@ -254,14 +254,14 @@ eve system health  # If this fails, ASK USER to restart stack
 
 # 2. Register this project
 eve project ensure --name fullstack-example \
-  --repo-url https://github.com/incept5/eve-horizon-fullstack-example \
+  --repo-url https://github.com/eve-horizon/eve-horizon-fullstack-example \
   --branch main
 
 # 3. Build and import images to k3d
-docker build -t ghcr.io/incept5/eve-horizon-fullstack-example-api:local apps/api
-docker build -t ghcr.io/incept5/eve-horizon-fullstack-example-web:local apps/web
-k3d image import ghcr.io/incept5/eve-horizon-fullstack-example-api:local -c eve-local
-k3d image import ghcr.io/incept5/eve-horizon-fullstack-example-web:local -c eve-local
+docker build -t ghcr.io/eve-horizon/eve-horizon-fullstack-example-api:local apps/api
+docker build -t ghcr.io/eve-horizon/eve-horizon-fullstack-example-web:local apps/web
+k3d image import ghcr.io/eve-horizon/eve-horizon-fullstack-example-api:local -c eve-local
+k3d image import ghcr.io/eve-horizon/eve-horizon-fullstack-example-web:local -c eve-local
 
 # 4. Deploy with local tag (--ref required)
 eve env deploy test --ref main --repo-dir .
@@ -521,7 +521,7 @@ kubectl -n eve-torg-fullstack-example-test exec deploy/api -- env | grep DATABAS
 
 ```bash
 # Ensure images are imported to k3d
-k3d image import ghcr.io/incept5/eve-horizon-fullstack-example-api:local -c eve-local
+k3d image import ghcr.io/eve-horizon/eve-horizon-fullstack-example-api:local -c eve-local
 ```
 
 ### "Pipeline failed"
